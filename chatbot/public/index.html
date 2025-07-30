@@ -6,10 +6,37 @@
     <title>AgeInt - AI Chatbot</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        .chat-container {
-            height: 600px;
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
             display: flex;
             flex-direction: column;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1rem;
+        }
+        .bg-white {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .p-6 {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
         .messages-container {
             flex: 1;
@@ -30,6 +57,14 @@
         .assistant-message {
             background-color: #F3F4F6;
             color: #1F2937;
+        }
+        .think-content {
+            font-size: 0.85rem;
+            color: #6B7280;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #E5E7EB;
+            font-style: italic;
         }
         .input-container {
             padding: 1rem;

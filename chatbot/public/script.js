@@ -14,10 +14,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
         
-        // Create message content
-        const messageContent = document.createElement('div');
-        messageContent.textContent = message;
-        messageDiv.appendChild(messageContent);
+        // Check if message contains <think> tags
+        if (!isUser && message.includes('<think>')) {
+            // Split the message into regular content and think content
+            const parts = parseThinkTags(message);
+            
+            // Create regular message content
+            const messageContent = document.createElement('div');
+            messageContent.textContent = parts.regularContent;
+            messageDiv.appendChild(messageContent);
+            
+            // Create think content if it exists
+            if (parts.thinkContent) {
+                const thinkDiv = document.createElement('div');
+                thinkDiv.className = 'think-content';
+                thinkDiv.textContent = parts.thinkContent;
+                messageDiv.appendChild(thinkDiv);
+            }
+        } else {
+            // Regular message without think tags
+            const messageContent = document.createElement('div');
+            messageContent.textContent = message;
+            messageDiv.appendChild(messageContent);
+        }
         
         // Add response time if provided (for assistant messages only)
         if (!isUser && responseTime) {
@@ -33,6 +52,31 @@ document.addEventListener('DOMContentLoaded', () => {
         
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Function to parse <think> tags in a message
+    function parseThinkTags(message) {
+        const thinkRegex = /<think>(.*?)<\/think>/s;
+        const match = message.match(thinkRegex);
+        
+        if (match) {
+            // Extract the think content
+            const thinkContent = match[1].trim();
+            
+            // Remove the think tags from the regular content
+            const regularContent = message.replace(thinkRegex, '').trim();
+            
+            return {
+                regularContent,
+                thinkContent
+            };
+        }
+        
+        // No think tags found
+        return {
+            regularContent: message,
+            thinkContent: null
+        };
     }
 
     // Function to fetch available models
