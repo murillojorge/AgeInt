@@ -60,12 +60,17 @@ app.post('/api/generate', async (req, res) => {
   try {
     console.log('Received request for /api/generate:', req.body);
     
+    // Start timing the response
+    const startTime = Date.now();
+    
     // Make the request to Ollama
     const response = await axios.post('http://localhost:11434/api/generate', req.body, {
       responseType: 'text' // Get raw text response
     });
     
-    console.log('Ollama response received');
+    // Calculate response time in seconds
+    const responseTime = (Date.now() - startTime) / 1000;
+    console.log(`Ollama response received in ${responseTime.toFixed(2)} seconds`);
     
     // Handle Ollama's streaming response format
     try {
@@ -141,7 +146,8 @@ app.post('/api/generate', async (req, res) => {
       res.json({
         response: cleanResponse,
         model: req.body.model,
-        done: isDone
+        done: isDone,
+        responseTime: responseTime.toFixed(2) // Return response time in seconds
       });
     } catch (parseError) {
       console.error('Error processing Ollama response:', parseError);

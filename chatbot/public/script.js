@@ -10,10 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentModel = 'mistral';
 
     // Function to add a message to the UI
-    function addMessage(message, isUser) {
+    function addMessage(message, isUser, responseTime = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
-        messageDiv.textContent = message;
+        
+        // Create message content
+        const messageContent = document.createElement('div');
+        messageContent.textContent = message;
+        messageDiv.appendChild(messageContent);
+        
+        // Add response time if provided (for assistant messages only)
+        if (!isUser && responseTime) {
+            const timeInfo = document.createElement('div');
+            timeInfo.className = 'response-time';
+            timeInfo.textContent = `Response time: ${responseTime}s`;
+            timeInfo.style.fontSize = '0.75rem';
+            timeInfo.style.color = '#666';
+            timeInfo.style.marginTop = '0.5rem';
+            timeInfo.style.textAlign = 'right';
+            messageDiv.appendChild(timeInfo);
+        }
+        
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -105,14 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Unexpected response format from server');
             }
             
-            addMessage(data.response, false); // Add assistant message
+            // Add assistant message with response time if available
+            addMessage(data.response, false, data.responseTime); 
             
             // Store conversation history
             messages.push({ role: 'user', content: message });
             messages.push({ 
                 role: 'assistant', 
                 content: data.response,
-                model: selectedModel
+                model: selectedModel,
+                responseTime: data.responseTime
             });
         } catch (error) {
             console.error('Error:', error);
