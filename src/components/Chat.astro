@@ -1,0 +1,77 @@
+---
+interface Props {
+  model: string;
+}
+
+const { model } = Astro.props;
+
+const messages = reactive<{
+  role: 'user' | 'assistant';
+  content: string;
+}[]>([]);
+
+async function sendMessage(message: string) {
+  if (!message.trim()) return;
+
+  messages.push({ role: 'user', content: message });
+
+  try {
+    const response = await fetch(`http://localhost:11434/api/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        prompt: message,
+      }),
+    });
+
+    const data = await response.json();
+    messages.push({ role: 'assistant', content: data.response });
+  } catch (error) {
+    console.error('Error:', error);
+    messages.push({
+      role: 'assistant',
+      content: 'Sorry, there was an error processing your request.',
+    });
+  }
+}
+---
+
+<div class="max-w-4xl mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-2xl font-bold mb-6">Chat with {model}</h1>
+    
+    <div class="space-y-4 h-[400px] overflow-y-auto mb-6" id="chat-messages">
+      {#each messages as message}
+        <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+          <div class="max-w-[80%] rounded-lg p-3 {message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
+            {message.content}
+          </div>
+        </div>
+      {/each}
+    </div>
+
+    <form class="flex gap-2" on:submit={(e) => {
+      e.preventDefault();
+      const input = e.target.querySelector('input');
+      if (input) {
+        sendMessage(input.value);
+        input.value = '';
+      }
+    }}>
+      <input
+        type="text"
+        placeholder="Type your message..."
+        class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</div>
