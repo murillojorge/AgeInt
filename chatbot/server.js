@@ -35,6 +35,26 @@ app.get('/test-ollama', async (req, res) => {
   }
 });
 
+// Get available Ollama models
+app.get('/api/models', async (req, res) => {
+  try {
+    const response = await axios.get('http://localhost:11434/api/tags');
+    const models = response.data.models || [];
+    res.json({
+      models: models.map(model => ({
+        name: model.name,
+        modified_at: model.modified_at
+      }))
+    });
+  } catch (error) {
+    console.error('Error fetching Ollama models:', error.message);
+    res.status(500).json({
+      error: 'Failed to fetch Ollama models',
+      details: error.message
+    });
+  }
+});
+
 // Direct implementation of the generate endpoint
 app.post('/api/generate', async (req, res) => {
   try {
