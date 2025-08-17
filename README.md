@@ -34,9 +34,19 @@ Before installing this application, you need to have:
    npm install
    ```
 
+3. Configure the application:
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit the .env file with your preferred settings
+   # For local Ollama, the defaults should work
+   # For remote Ollama, update OLLAMA_HOST, OLLAMA_PORT, and OLLAMA_PROTOCOL
+   ```
+
 ## Running the Application
 
-1. Make sure Ollama is running on your machine (default port: 11434)
+1. Make sure Ollama is running on your machine (default port: 11434) or on the remote server specified in your configuration
 
 2. Start the application:
    ```bash
@@ -47,6 +57,7 @@ Before installing this application, you need to have:
    ```
    http://localhost:3000
    ```
+   (or the host/port you configured in your .env file)
 
 ## Using the Chatbot
 
@@ -54,6 +65,20 @@ Before installing this application, you need to have:
 2. Type your message in the input field
 3. Press "Send" or hit Enter to send your message
 4. View the AI's response in the chat window
+
+## Configuration Options
+
+The application can be configured using environment variables or a `.env` file:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| PORT | Port for the web server | 3000 |
+| HOST | Host for the web server | localhost |
+| OLLAMA_HOST | Hostname of the Ollama service | localhost |
+| OLLAMA_PORT | Port of the Ollama service | 11434 |
+| OLLAMA_PROTOCOL | Protocol for Ollama service (http/https) | http |
+| OLLAMA_DEFAULT_MODEL | Default model to use | mistral |
+| OLLAMA_TIMEOUT | Request timeout in milliseconds | 30000 |
 
 ## Available API Endpoints
 
@@ -69,6 +94,7 @@ If you encounter issues:
    ```bash
    curl http://localhost:11434/api/tags
    ```
+   (adjust the URL if using a remote Ollama instance)
 
 2. Check the server logs for any error messages
 
@@ -77,6 +103,8 @@ If you encounter issues:
    ollama list
    ```
 
+4. Verify your .env configuration matches your Ollama setup
+
 ## Project Structure
 
 ```
@@ -84,6 +112,8 @@ chatbot/
 ├── public/
 │   ├── index.html    # Frontend UI
 │   └── script.js     # Frontend JavaScript
+├── config.js         # Configuration settings
+├── .env.example      # Example environment variables
 ├── package.json      # Project dependencies
 └── server.js         # Express server and API endpoints
 ```

@@ -3,9 +3,10 @@ const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 const axios = require('axios');
+const config = require('./config');
 
 const app = express();
-const PORT = 3000;
+const PORT = config.server.port;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -19,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Test Ollama connection
 app.get('/test-ollama', async (req, res) => {
   try {
-    const response = await axios.get('http://localhost:11434/api/tags');
+    const response = await axios.get(`${config.ollama.baseUrl}${config.ollama.endpoints.tags}`);
     res.json({
       status: 'success',
       message: 'Connected to Ollama successfully',
@@ -38,7 +39,7 @@ app.get('/test-ollama', async (req, res) => {
 // Get available Ollama models
 app.get('/api/models', async (req, res) => {
   try {
-    const response = await axios.get('http://localhost:11434/api/tags');
+    const response = await axios.get(`${config.ollama.baseUrl}${config.ollama.endpoints.tags}`);
     const models = response.data.models || [];
     res.json({
       models: models.map(model => ({
@@ -64,8 +65,9 @@ app.post('/api/generate', async (req, res) => {
     const startTime = Date.now();
     
     // Make the request to Ollama
-    const response = await axios.post('http://localhost:11434/api/generate', req.body, {
-      responseType: 'text' // Get raw text response
+    const response = await axios.post(`${config.ollama.baseUrl}${config.ollama.endpoints.generate}`, req.body, {
+      responseType: 'text', // Get raw text response
+      timeout: config.ollama.timeout // Use configured timeout
     });
     
     // Calculate response time in seconds
@@ -171,7 +173,8 @@ app.post('/api/generate', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`Test Ollama connection at http://localhost:${PORT}/test-ollama`);
+app.listen(PORT, config.server.host, () => {
+  console.log(`Server running at http://${config.server.host}:${PORT}`);
+  console.log(`Test Ollama connection at http://${config.server.host}:${PORT}/test-ollama`);
+  console.log(`Using Ollama service at: ${config.ollama.baseUrl}`);
 });
